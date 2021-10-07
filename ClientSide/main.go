@@ -46,5 +46,4 @@ func main() {
 	PostRequest()
 	log.Println(Dh.GetFinalKey())
 	confirm()
-
 }
