@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Lab4Client/dh"
+	"Lab4/dh"
 	"bytes"
 	"io/ioutil"
 	"log"

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Lab4Client/dh"
+	"Lab4/dh"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
@@ -16,15 +16,12 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		Next:             nil,
 		AllowOrigins:     "*",
-		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+		AllowMethods:     "POST",
 		AllowHeaders:     "",
 		AllowCredentials: false,
 		ExposeHeaders:    "",
 		MaxAge:           0,
 	}))
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.JSON(Dh)
-	})
 	app.Post("/", func(ctx *fiber.Ctx) error {
 		err := Dh.ReceiveJson(ctx.Body())
 		if err != nil {

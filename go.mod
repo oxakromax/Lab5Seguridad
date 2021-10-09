@@ -1,4 +1,4 @@
-module Lab4Client
+module Lab4
 
 go 1.17
 
