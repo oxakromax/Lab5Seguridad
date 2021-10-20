@@ -1,0 +1,6 @@
+Desencriptado por el metodo (DES):
+Este es un mensaje cifrado super secreto
+Desencriptado por el metodo (3DES):
+Este es un mensaje cifrado super secreto
+Desencriptado por el metodo (AES):
+Este es un mensaje cifrado super secreto
