@@ -30,23 +30,46 @@ func main() {
 		ExposeHeaders:    "",
 		MaxAge:           0,
 	}))
-	app.Post("/", func(ctx *fiber.Ctx) error {
-		err := Dh.ReceiveJson(ctx.Body())
-		if err != nil {
-			return err
-		}
-		log.Println(Dh.GetFinalKey())
-		return ctx.JSON(Dh)
-	})
-	app.Post("/confirm/", func(ctx *fiber.Ctx) error {
-		log.Println("Son iguales:", string(ctx.Body()) == Dh.GetFinalKey())
-		return ctx.SendString(Dh.GetFinalKey())
-	})
+	app.Post("/", PostROOT)
+	app.Post("/confirm/", POSTConfirm)
+
+	app.Post("/DES/", PostDES)
+	app.Post("/3DES/", Post3DES)
+	app.Post("/AES/", PostAES)
 	port, ok := os.LookupEnv("PORT") // For Heroku or Elastic
 	if !ok {
 		port = "8080"
 	}
 	log.Fatal(app.Listen(":" + port))
+}
+
+func POSTConfirm(ctx *fiber.Ctx) error {
+	log.Println("Son iguales:", string(ctx.Body()) == Dh.GetFinalKey())
+	return ctx.SendString(Dh.GetFinalKey())
+}
+
+func PostROOT(ctx *fiber.Ctx) error {
+	err := Dh.ReceiveJson(ctx.Body())
+	if err != nil {
+		return err
+	}
+	log.Println(Dh.GetFinalKey())
+	return ctx.JSON(Dh)
+}
+
+func PostDES(ctx *fiber.Ctx) error {
+	jDes := new(structs.MSG)
+	err := ctx.BodyParser(jDes)
+	if err != nil {
+		return err
+	}
+	i := jDes.I
+	destext, err := crypt.DesDecrypt(jDes.Msg, []byte(Dh.GetFinalKey()[i:i+8]))
+	if err != nil {
+		return err
+	}
+	SaveFileText(string(destext), "DES")
+	return nil
 }
 func Post3DES(ctx *fiber.Ctx) error {
 	jDes := new(structs.MSG)
