@@ -1,4 +1,4 @@
-package goRead
+package utils
 
 import (
 	"fmt"
@@ -42,7 +42,7 @@ func (fs *FileStore) Write(filename, data string) {
 }
 
 // write raw data to a new file
-func (fs *FileStore) WriteRaw(filename string, data []byte) {
+func (fs *FileStore) WiteRaw(filename string, data []byte) {
 	if err := ioutil.WriteFile(fs.Pth+filename+fs.Ext, data, 0644); err != nil {
 		fmt.Println(err)
 	}

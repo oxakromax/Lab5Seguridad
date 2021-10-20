@@ -2,61 +2,25 @@ package main
 
 import (
 	"Lab4/crypt"
-	"Lab4/crypt/dh"
-	"Lab4/goRead"
+	"Lab4/lab4"
 	"Lab4/structs"
 	"Lab4/utils"
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-var Dh = new(dh.Dh)
-
-func PostRequest() {
-	Dh.Configure()
-	responseBody := bytes.NewBuffer(Dh.MakeJson())
-	//Leverage Go's HTTP Post function to make request
-	resp, err := http.Post("http://localhost:8080/", "application/json", responseBody)
-	//Handle Error
-	if err != nil {
-		log.Fatalf("An Error Occured %v", err)
-	}
-	defer resp.Body.Close()
-	//Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	_ = Dh.ReceiveJson(body)
+func main() {
+	lab4.DiffieHellmanSync() // LAB 4 Process
+	Mensaje := File()        // Se lee el mensaje del archivo
+	DES(Mensaje)             // Se encripta el mensaje con DES y se envia
+	TripleDES(Mensaje)       // Lo mismo pero con 3DES
+	AES(Mensaje)             // AES
 }
-
-func confirm() {
-	responseBody := bytes.NewBuffer([]byte(Dh.GetFinalKey()))
-	resp, err := http.Post("http://localhost:8080/confirm", "text/plain", responseBody)
-	if err != nil {
-		log.Fatalf("An Error Occured %v", err)
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("Son iguales:", string(body) == Dh.GetFinalKey())
-}
-
 func File() string {
-	return string(goRead.NewFileStore("Data/", ".txt").ReadRaw("mensajeentrada"))
+	return string(utils.NewFileStore("Data/", ".txt").ReadRaw("mensajeentrada"))
 }
-
-func DiffieHellmanSync() {
-	PostRequest()
-	log.Println(Dh.GetFinalKey())
-	confirm()
-}
-
 func sendEncryptJson(jdes *structs.MSG, route string) {
 	marshal, err := json.Marshal(jdes)
 	if err != nil {
@@ -69,16 +33,9 @@ func sendEncryptJson(jdes *structs.MSG, route string) {
 	}
 }
 
-func main() {
-	DiffieHellmanSync()
-	Mensaje := File()
-	DES(Mensaje)
-	TripleDES(Mensaje)
-	AES(Mensaje)
-}
 func AES(Mensaje string) {
-	i := utils.RandomInt(0, len(Dh.GetFinalKey())-32)
-	key := []byte(Dh.GetFinalKey()[i : i+32])
+	i := utils.RandomInt(0, len(lab4.Dh.GetFinalKey())-32)
+	key := []byte(lab4.Dh.GetFinalKey()[i : i+32])
 	EncryptedText := crypt.AesEncrypt(key, []byte(Mensaje))
 	MSG := &structs.MSG{
 		Msg: EncryptedText,
@@ -88,8 +45,8 @@ func AES(Mensaje string) {
 }
 
 func TripleDES(Mensaje string) {
-	i := utils.RandomInt(0, len(Dh.GetFinalKey())-24)
-	key := []byte(Dh.GetFinalKey()[i : i+24])
+	i := utils.RandomInt(0, len(lab4.Dh.GetFinalKey())-24)
+	key := []byte(lab4.Dh.GetFinalKey()[i : i+24])
 	EncryptedText, err := crypt.TripleDesEncrypt([]byte(Mensaje), key)
 	if err != nil {
 		log.Fatal(err)
@@ -102,8 +59,8 @@ func TripleDES(Mensaje string) {
 }
 
 func DES(Mensaje string) {
-	i := utils.RandomInt(0, len(Dh.GetFinalKey())-8)
-	key := []byte(Dh.GetFinalKey()[i : i+8])
+	i := utils.RandomInt(0, len(lab4.Dh.GetFinalKey())-8)
+	key := []byte(lab4.Dh.GetFinalKey()[i : i+8])
 	EncryptedText, err := crypt.DesEncrypt([]byte(Mensaje), key)
 	if err != nil {
 		log.Fatal(err)

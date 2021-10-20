@@ -3,8 +3,8 @@ package main
 import (
 	"Lab4/crypt"
 	"Lab4/crypt/dh"
-	"Lab4/goRead"
 	"Lab4/structs"
+	"Lab4/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
@@ -12,11 +12,6 @@ import (
 )
 
 var Dh = new(dh.Dh)
-
-func SaveFileText(text, method string) {
-	file := goRead.NewFileStore("Data/", ".txt")
-	file.Write("mensajerecibido", "Desencriptado por el metodo ("+method+"):\n"+text)
-}
 
 func main() {
 	Dh.Configure()
@@ -98,4 +93,9 @@ func PostAES(ctx *fiber.Ctx) error {
 	}
 	SaveFileText(string(destext), "AES")
 	return nil
+}
+
+func SaveFileText(text, method string) {
+	file := utils.NewFileStore("Data/", ".txt")
+	file.Write("mensajerecibido", "Desencriptado por el metodo ("+method+"):\n"+text)
 }
