@@ -1,36 +1,39 @@
 package main
 
 import (
-	"Lab4/dh"
+	// "Lab4/rsac"
+	"Lab4/rsac"
+	"Lab4/utils"
 	"bytes"
+	"crypto/rsa"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-var Dh = new(dh.Dh)
 
-func PostRequest() {
-	Dh.Configure()
-	responseBody := bytes.NewBuffer(Dh.MakeJson())
-	//Leverage Go's HTTP Post function to make request
-	resp, err := http.Post("http://localhost:8080/", "application/json", responseBody)
-	//Handle Error
+func getPubkey() *rsa.PublicKey {
+	resp, err := http.Get("http://localhost:8080/getpub")
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
 	defer resp.Body.Close()
-	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	_ = Dh.ReceiveJson(body)
+	var Pubk = new(rsa.PublicKey)
+	json.Unmarshal(body, Pubk)
+	return Pubk
 }
 
-func confirm() {
-	responseBody := bytes.NewBuffer([]byte(Dh.GetFinalKey()))
-	resp, err := http.Post("http://localhost:8080/confirm", "text/plain", responseBody)
+func postMessage(message []byte) {
+	json, _ := json.Marshal(utils.MSG{
+		Msg: message,
+	})
+	responseBody := bytes.NewBuffer(json)
+	resp, err := http.Post("http://localhost:8080/rsacDecrypt", "application/json", responseBody)
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
@@ -39,11 +42,17 @@ func confirm() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println("Son iguales:", string(body) == Dh.GetFinalKey())
+	log.Println(string(body))
 }
 
 func main() {
-	PostRequest()
-	log.Println(Dh.GetFinalKey())
-	confirm()
+	msg := utils.NewFileStore("Input/", ".txt").ReadRaw("mensajeentrada")
+	RSAProcess(msg)
 }
+
+func RSAProcess(msg []byte) {
+	PubK := getPubkey()
+	EncryptedMsg := rsac.EncryptWithPublicKey(msg, PubK)
+	postMessage(EncryptedMsg)
+}
+
