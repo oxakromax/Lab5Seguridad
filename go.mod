@@ -3,7 +3,7 @@ module Lab4
 go 1.17
 
 require (
-	github.com/gofiber/fiber/v2 v2.20.1
+	github.com/gofiber/fiber/v2 v2.20.2
 	github.com/monnand/dhkx v0.0.0-20180522003156-9e5b033f1ac4
 )
 
