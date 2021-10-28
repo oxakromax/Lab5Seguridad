@@ -41,7 +41,10 @@ func main() {
 
 	app.Post("/rsacDecrypt", func(ctx *fiber.Ctx) error {
 		data := new(utils.MSG)
-		ctx.BodyParser(data)
+		err := ctx.BodyParser(data)
+		if err != nil {
+			return err
+		}
 		DecryptedBytes := rsac.DecryptWithPrivateKey(data.Msg, RSAPriv)
 		AppendToFile(string(DecryptedBytes), "RSA")
 		msg := string(DecryptedBytes)
@@ -50,7 +53,10 @@ func main() {
 
 	app.Post("/gamalDecrypt", func(c *fiber.Ctx) error {
 		data := new(utils.GamalMSG)
-		c.BodyParser(data)
+		err := c.BodyParser(data)
+		if err != nil {
+			return err
+		}
 		DecryptedBytes, err := elgamal.Decrypt(GamalPriv, data.C1, data.C2)
 		if err != nil {
 			log.Fatal(err)
