@@ -13,6 +13,7 @@ import (
 	"golang.org/x/crypto/openpgp/elgamal"
 )
 
+
 func AppendToFile(data, method string) {
 	utils.NewFileStore("OutPut/", ".txt").Write("mensajerecibido", method+":\n"+data)
 }
